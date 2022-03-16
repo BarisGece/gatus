@@ -28,7 +28,9 @@
             <span v-for="filler in maximumNumberOfResults - data.results.length" :key="filler" class="status rounded border border-dashed border-gray-400">&nbsp;</span>
           </slot>
           <slot v-for="result in data.results" :key="result">
-            <span v-if="result.success" class="status status-success rounded bg-success" @mouseenter="showTooltip(result, $event)" @mouseleave="showTooltip(null, $event)"></span>
+            <span v-if="result.success && (result.duration / 1000000).toFixed(0) < 1000" class="status status-success rounded bg-success" @mouseenter="showTooltip(result, $event)" @mouseleave="showTooltip(null, $event)"></span>
+            <span v-else-if="result.success && (result.duration / 1000000).toFixed(0) < 2500"  class="status status-slow rounded bg-orange-300" @mouseenter="showTooltip(result, $event)" @mouseleave="showTooltip(null, $event)"></span>
+            <span v-else-if="result.success && (result.duration / 1000000).toFixed(0) < 5000"  class="status status-slow rounded bg-orange-600" @mouseenter="showTooltip(result, $event)" @mouseleave="showTooltip(null, $event)"></span>
             <span v-else class="status status-failure rounded bg-red-600" @mouseenter="showTooltip(result, $event)" @mouseleave="showTooltip(null, $event)"></span>
           </slot>
         </slot>
@@ -172,12 +174,17 @@ export default {
   content: "✓";
 }
 
+.status.status-slow::after {
+  content: "!";
+}
+
 .status.status-failure::after {
   content: "X";
 }
 
 @media screen and (max-width: 600px) {
   .status.status-success::after,
+  .status.status-slow::after,
   .status.status-failure::after {
     content: " ";
     white-space: pre;
